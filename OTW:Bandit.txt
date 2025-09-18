@@ -1,0 +1,121 @@
+Level 0:
+-Password: bandit0
+-Steps:
+    SSH into bandit0 and use bandit0 as Password
+-Lessons:
+    Refreshed my memory on how to use SSH command
+
+Level 0->1:
+-Password: ZjLjTmM6FvvyRnrb2rfNWOZOTa6ip5If
+-Steps: 
+    use ls, identify readme file and view it using cat command
+-Lessons:
+    refreshed my memory on what cat vs vim command does
+
+Level 1->2:
+-Password: 263JGJPfgU6LtdEvgfWU1XP5yac29mFx
+-Steps:
+    use ls -a to identify the file -
+    to view the file since - is a special character cat ./- must be used to get the password
+-Lessons:
+    when I first did cat - nothing was happening and it made me refresh my memory that control c quits the running operation
+
+Level 2->3: 
+-Password: MNk8KNH3Usiio41PRUEoDFPqfxLPlSmx
+-Steps: 
+    use ls -a to view files
+    to view --spaces in this filename-- you need to use quotes because of the spaces and also ./ since it contains -
+    ./"--spaces in this filename--" to view the password
+-Lessons:
+    I previously thought quotes would work just fine for this but then realized I also needed to use ./
+
+Level 3->4:
+-Password: 2WmrDFRmJIq3IPxneAaMGhap0pFhF3NJ
+-Steps:
+    Use ls to check inhere directory exists
+    once in the inhere directory ls -a is needed to view the hidden file
+    cat ...Hiding-From-You to view the password
+-Lessons:
+    showed me the importance/usefulness of ls -a instead of ls
+
+
+Level 4->5: 
+-Password: 4oQYVPkxZOOEOO5pTW81FB8j8lxXGUQw
+-Steps:
+    ls to see the inhere directory exists
+    cd inhere to enter the directory
+    ls -a shows all the files but doesn't show which are human readable
+    To find human readable one file ./* to view file types
+    -file07 is the only file of ASCII type
+    cat ./-file07 to view password
+-Lessons:
+    learned how to find file types from doing man file to view manual page
+
+Level 5->6:
+-Password: HWasnPhtq9AVKe0dmk45nxy20cvUa6EG
+-Steps:
+    ls to view directory then cd inhere to enter the appropriate directory
+    ls -a shows 20 subdirectories which may contain the password
+    doing find . -readable to view all the readable files in all the subdirectories provides many files
+    to search by size find . -readable -size 1033c (to search for required byte size) results in 1 file
+    cat ./maybehere07/.file2 to view the password
+-Lessons:
+    I did not need to search for executable or non executable files (maybe doing so would be more efficient especially
+    if many files are of the same size)
+
+Level 6->7:
+-Password: morbNTDkSW6jIlUc0ymOdMaLnOlFVAaj
+-Steps:
+    Since we know we need a file of a certain size by a certain user and group we can use the find command
+    find / -type f -user bandit7 -group bandit6 -size 33c results in a lot of files with permission denied error
+    1 file does not have an error
+    To view this one file cat /var/lib/dpkg/info/bandit7.password will show the password needed
+-Lessons:
+    grouping find commands into one argument makes searching for a file easier
+
+Level 7->8:
+-Password: dfwvzFQi4mU0wfNbFOe9RoWskMLg7eEc
+-Steps:
+    we know the password is in data.txt which we can see when doing ls -all
+    the cat command alone will not work as the file contains a lot of text
+    we know the password is next to the word millionth
+    cat data.txt | grep millionth will output the lines containing millionth and from there we can find the password
+-Lessons:
+    grep is a useful command to search for patterns within a file
+
+Level 8->9:
+-Password: 4CKMh1JI91bUIZZPXDqGanal4xvAg0JM
+-Steps:
+    we know the file needed is data.txt and the password is the only line not repeated
+    we can use uniq command to identify this line but the command only works on a sorted file
+    sort data.txt | uniq -u reveals the password
+-Lessons:
+    sorting and using pipes to further sort is a powerful combination for a command
+
+Level 9->10:
+-Password: FGUW5ilLVJrxX9kMYMmlN4MgbpfMiqey
+-Steps:
+    To find human readable strings the strings command can be used
+    since we know it is preceded by several '=' we can use grep ===
+    strings data.txt | grep === reveals the password
+-Lessons:
+    strings is a useful command depending what you are looking for in a file
+
+Level 10->11:
+-Password: dtR173fZKb0RRsDFSGsg2RWnpNVj3qRr
+-Steps:
+    we know the password is in data.txt which has base64 encoded data
+    base64 -d can be used to decode the line in data.txt
+    base64 -d data.txt reveals the password
+-Lessons:
+    knowing how to decode lines in a file seems like it will be useful in the future
+
+Level 11->12:
+-Password: 7x16WNeHIi5YkIhWsfFIqoognUTyj9Q4
+-Steps:
+    we know data.txt contains the password...but letters are rotated by 13
+    to switch first half of alphabet with last half and vice versa we can use the tr command
+    cat data.txt | tr 'A-Za-z' 'N-ZA-Mn-za-m' reveals the password
+-Lessons:
+    While I am not sure what applications I will use tr command in the future, I think it is helpful to know how to use it
+    when needing to decode strings that have been changed with various ciphers.
