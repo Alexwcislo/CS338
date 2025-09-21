@@ -1,0 +1,69 @@
+Assignment: Wireshark
+Name: Alex Wcislo
+
+===== DAYTIME =====
+
+-Identify the parts of the TCP 3-way handshake by listing the frame summaries of the relevant frames. Your summaries should looks something like this:
+3  10.0.2.15  129.6.15.27  TCP  [SYN]...
+(i.e. the frame number 3, the source IP address, the destination IP address, the protocol, and the "Info" for the frame).
+
+    - 1  192.168.64.2  129.6.15.28  TCP  41428 -> 13 [SYN]
+    - 2  129.6.15.28  192.168.64.2  TCP  13 -> 41428 [SYN, ACK]
+    - 3  192.168.64.2  129.6.15.28  TCP  41428 -> 13 [ACK]
+
+
+-What port number does the client (i.e. nc on your Kali computer) use for this interaction?
+
+    -Client uses the port number 41428
+
+
+-Why does the client need a port?
+
+    -Client needs a port in order to communicate with the server port (determines what service; in this case Daytime protocol). The client port is needed
+    so the server knows who/which program on clients computer to talk to.
+
+
+-What frame contains the actual date and time? (Show the frame summary as in question 1 above.)
+
+    -4  129.6.15.28  192.168.64.2  DAYTIME  105 DAYTIME Response
+
+
+-What do [SYN] and [ACK] mean?
+
+    -[SYN] means synchronize which is used to start a TCP connection
+    -[ACK] means acknowledge which is used to to let server/other side know the package has been received 
+
+
+-Which entity (the nc client or the daytime server) initiated the closing of the TCP connection? How can you tell?
+
+    -Daytime server initiated the closing of the TCP connection because it sends out the [FIN, ACK] first then client sends [ACK]. 
+    This both happens before the client sends [FIN, ACK] and then daytime server finishes by sending [ACK]
+
+
+===== HTTP =====
+
+-How many TCP connections were opened? How can you tell?
+
+    - 4 TCP connections were opened. I can tell by using the filter tcp.flags.syn==1 and counting how many connections are just [SYN] and do not have [ACK]
+
+
+-Can you tell where my homepage (index.html) was requested? (If not, why not? If so, include frame summaries and/or other info that supports your answer.)
+
+    - Yes I can tell. By looking through the different frames (with the help of using the filter http.request) I can see where the homepage was requested.
+    The frame summary in the format (the frame number, the source IP address, the destination IP address, the protocol, length, and the "Info" for the frame): 
+    32  192.168.64.2  172.233.221.124  HTTP 424 GET /index.html HTTP/1.1
+
+
+-Can you tell where my photograph (jeff-square-colorado.jpg) was requested? (If not, why not? If so, include frame summaries and/or other info that supports your answer.)
+
+    - Yes, following the same method as in the previous question I can see this request in the following frame:
+    36  192.168.64.2  172.233.221.124  HTTP 463 Get /jeff-square-colorado.jpg HTTP/1.1
+
+
+
+===== QUESTIONS =====
+
+    - How can I tell if multiple TCP connections to same server are part of the same page loading or completely separate requests from different tasks?
+    - Is there a way to determine if the packet is coming from the client or server without knowing the ip address or port of each?
+    - How can I quickly see which frame contains the actual payload (ex. date/time in daytime protocol) without looking through frames and filtering?
+    - I kind of understand the difference between a capture filter and display filter but in what kinds of situations should each be used?
