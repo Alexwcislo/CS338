@@ -1,0 +1,79 @@
+Diffie-Hellman:
+-We have intercepted the agreed upon g=5, p=103
+-We also intercepted Alices message (A=10) and Bob's (B=71)
+-These messages were encoded by A = g ** a mod p and B = g ** b mod p
+-To solve for a and b we need to go through all 1 < x < 103 and see if any g ** x mod p is equal to A or b
+-Ex: Code to solve for A
+g = 5
+p = 103
+A = 10
+B = 71
+
+a = None
+for x in range(1, p):
+    if pow(g, x, p) == A: ##found documentation for pow on w3schools ref pages
+        a = x
+        break
+
+print("Alice a =", a)
+
+-Doing this for both a and b we find a = 45 and b = 67
+-To find the shared secret (K) we can do B ** a mod p or A ** b mod p or g ** ab mod p
+-In the terminal:  5**(45*67)%103 results in 31=K
+-If starting integers were much larger then brute force finding a and b would take too long as we would have to
+search a much larger range.
+
+RSA:
+-We have intercepted:
+    -(e_Bob, n_Bob) = (17, 266473)
+    -Encrypted data:
+        [42750, 225049, 67011, 9062, 263924, 83744, 10951, 156009,
+        174373, 125655, 207173, 200947, 227576, 183598, 148747, 211083,
+        225049, 218587, 191754, 164498, 225049, 171200, 193625, 99766,
+        94020, 223044, 38895, 74666, 48846, 219950, 139957, 77545,
+        171672, 165278, 150326, 262673, 164498, 142355, 77545, 171672,
+        255299, 5768, 264753, 75667, 261607, 31371, 164498, 140654,
+        244325, 140696, 40948, 179472, 168428, 34824, 32543, 30633,
+        104926, 190298, 148747, 132510, 42607, 232272, 42721, 188452,
+        239228, 50536, 216512, 139240, 78779, 166647, 100152, 261607,
+        121165]
+-we need to find a p and q such that n_bob=pq:
+    n = 266473
+    p = None
+    q = None
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            p = i
+            q = n//i
+            print(p, q)
+            break
+    this reults in p=439 and q=607
+-We need to find lambda(n) can be done in the terminal math.lcm(438, 606)=44238
+-We need to find Bob's private d where ed mod lambda(n)=1:
+    for d in range(1, 44238):
+        if (e * d) % lam == 1:
+            print("Privat d =", d)
+            break
+    this results in d=10409
+-Alices message is encrypted by taking the message and turning the text into its corresponding ASCII values.
+    She then encodes each number x by doing x ** e mod n where e, n is Bob's public key and then sends Bob the new 
+    list of integers.
+-To decode Bob needs to take each number in Alice's message Y and do Y ** d mod n where d, n is Bob's private key
+-We then to translate using ASCII into text
+   d = 10409
+   n = 266473
+    plaintext_chars = []
+    for c in cipher:
+        Y = pow(c, d, n)      #Decode each number in Alic message
+        high = Y >> 8         #Get first letter
+        low  = Y & 0xFF       #Get second letter
+        plaintext_chars.append(chr(high))
+        plaintext_chars.append(chr(low))
+
+    message = ''.join(plaintext_chars)
+    print(message)
+-The decoded text is: 
+    Hey Bob, here's some cryptography history for you (https://en.wikipedia.org/wiki/The_Magic_Words_are_Squeamish_Ossifrage). Happy factoring, Alice.
+-If n was much larger then brute force factoring to find p and q would take too long and I would have failed.
+-Even with large numbers, Alices encoding is insecure as the key she used is public, if she encodes the same chunk of text twice
+it will be repeaded in the encoded text making it vulnerable to decoding attacks.
