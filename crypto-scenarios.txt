@@ -1,0 +1,56 @@
+Author: Alex Wcislo
+
+Simple Communication Scenarios
+    1) For Alice to send Bob a long message without eve being able to read it and assuming AITM is impossible:
+    -She can (alongside Bob) use Diffie-Hellman to agree on a shared secret from which they derive an AES key K. 
+    -She can encrypt her message with AES (C = AES(K, M)) and then sending it to Bob. 
+    -Bob decrypts with the shared key (M = AES_D(K, C)).
+
+    -The message is securely protected because Eve does not have access to K. 
+    AES is faster than public-key encryption which is good for long messages.
+    Since AITM is impossible Diffie-Hellman is secure.
+
+    2) For Alice to send Bob a long message without Mal to be able to modify the message:
+    -She can (alongside Bob) use Diffie-Hellman to agree on a shared secret from which they derive an AES key K. 
+    -Compute a SHA-256 hash on M (X = H(M)).
+    -Send Bob encrypted message (C = AES(K, M || X).
+    -Bob receives and decrypts to get M || X, splits M from X.
+    -H(M) to get X2 and if X2 = X Bob knows message was not changed.
+
+    -This works because the hash lets Bob identify if the message was changed.
+    Mal is not able to fake the hash without having K.
+
+    3) If Alice wants to send Bob a long message (signed contract), doesn't want eve to be able to read it and give Bob confidence that it was Alice.
+    Assuming AITM is impossible:
+    -She can (alongside Bob) use Diffie-Hellman to agree on a shared secret from which they derive an AES key K. 
+    -Alic signs the contract (sig = E(S_A, M))
+    -Encrypts with AES (C = AES(K, M || sig)) and sends to Bob
+    -Bob receives and decrypts C, splits it into M and sig
+    -Bob verifies the signature with Alice's public key (E(P_A, M, sig))
+
+    -Since both the message(contract) and signature are encrypted, Eve can't read anything without K.
+    -Bob can say with confidence Alice sent the message after verifying the signature.
+
+
+Questions About Breaking Security
+    4) Given C || Sig, P_A, and Bob's claim Alice can make the following claims for Bob's contract:
+    -Alice's private key was stolen Mal could have falsified her signature on the document.
+        -If she has decent evidence it was stolen (malware or a breach) this would hold in court
+    -The encrypting algorithm has a flaw someone could have exploited to provide a fake but valid signature
+        -This would be pretty implausible since most known schemes used are considered secure
+    -Lastly she could claim Bob copied a previous signature onto a new contract
+        -This would be found highly not plausible since a Judge with crptographic background would know each signature is unique.
+
+    5) Given the structure of the certificate, P_CA, S_CA, H, P_B, E we can compute sig_CA:
+    -sig_CA  = E(S_CA, H("bob.com" || P_B))
+    -Others will be able to use P_CA to confirm bob.com was certified by can
+
+    6) Bob sending Alice Cert_B alone is not enough for Alice to know she is talking to Bob or that bob has S_B.
+    -To verify this Alice could send a random value to Bob
+    -Bob uses S_B to sign the value and sends it back to Alice
+    -Alice verifies it with P_B and if valid then she knows Bob has S_B
+
+    7) Mal could convince Alice that he was Bob by exploiting the certificate based system in the following ways:
+    -If Mal somehow gets access to S_CA he can make fake certificates for any key/person/Bob he chooses
+        -This would allow Mal to send and receive things as if her were Bob if Alice only required certificate validation
+    -Mal steals S_B and can sign anything as if he were Bob.
