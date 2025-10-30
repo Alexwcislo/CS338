@@ -1,0 +1,47 @@
+Part 1:
+    a) To execute the whoami command the first step is uploading the webshell (example given in the assignment)
+        -Once uploaded we are shown: Target: uploadedimages/wcisloa-webshell1.php
+        -Then I visit the url and add the whoami command:
+            -http://danger.jeffondich.com/uploadedimages/wcisloa-webshell1.php?command=whoami
+        -The result is I see www-data
+    b) The pre tag is to identify that it needs to use a preformatted HTML style. 
+        -Testing a webshell (in my case wcislo-webshell2.php) without the pre tag results in the same output, just different font and slightly different style
+
+Part 2: For this part of the assignment changing the commands like above can provide the solutions
+    a) danger's website is in the directory /var/www/danger.jeffondich.com
+    b) The names of all user accounts on danger are given in a list (first part of uploaded images).
+    I know because modifying the command to command=ls%20-la shows everything in uploadedimages and each user has (in theory) uploaded an image.
+    c) I do not seem to have direct access to the file /etc/passwd. When I add the command cat%20/etc/password it says site can't be reached.
+    However, when I attempt the command getent%20passwd to list users I am able to see some human commands like jeff but many system accounts like daemon, bin, syslog, etc.
+    d) I do not have access to the file /etc/shadow. The file contains sensitive user information including encrypted passwords and other information about passwords like when it was changed. I know this from some quick research online.
+    e) I was able to find the following secret files:
+        - hi_jeff.txt and kindasecret.txt with ascii art in the secrets directory
+        -secret.txt with some more cool ascii art in the youwontfindthiswithgobuster directory
+    f) Other interesting stuff:
+        -by using the command echo%20wcisloa%20was%20also%20here%20>>%20/var/www/danger.jeffondich.com/secrets/hi_jeff.txt:
+        -I was able to add a line to this line to the hi_jeff file in the secrets folder that says:
+        wcisloa was also here
+        -By using similar commands I am sure I can modify other files or even modify directories
+
+Part 3: Setting up for part 4
+
+Part 4:
+    a) The IP address of my Kali VM is 192.168.64.2. Ik this from running ifconfig.
+        I confirmed it was 192.168.64.2 and not 127.0.0.1 because this allowed me to connect to the webshell.
+    b) The IP address of my host OS is 10.133.7.247 i found out by running ifconfig and grepping with "inet". CORRECTION: Ip is 192.168.64.1 which also appears by running ifconfig.
+    c) When I run nc -l -p 8000 i get an error saying nc: missing port with option -l.
+        After a bit of looking online I found that my version of netcat is likely different and I can just run nc -l 8000
+    d) Navigating to this crazy url at first did not work so I had to double check my ip addresses and found that to part b my os ip is 192.168.64.1
+    e) After checking my host (listening) I see that I do have a shell, and from testing simple commands I am successfully able to run commands.
+        I know I am on kali because the terminal now shows www-data@kali-cs:/var/www/html$ instead of my normal one.
+    f) The % codes in the URL represent characters as per any URL programmed requirements. 
+        For example %20 is a space.
+        Others represent < or > or & which can be served for redirection purposes.
+    g) The reverse shell functions as follows:
+        -Attacker sets up/injects a webshell on the target (kali vm) machine
+        -The attacker sets up a netcat listener on a chosen port
+        -The target (Kali) initiates the conenction via the injected webshell by redirecting input and output to the attacker's ip and chosen port
+            -this was done by using the crazy URL provided in the assignment
+        -Once this connection has been established the attacker has access to the shell and
+        is able to execute commands on the target machine from the attackers machine as if the 
+        attacker were physically on the target machine
